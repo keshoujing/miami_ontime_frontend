@@ -1,0 +1,99 @@
+.screen-layout {
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 100vh;
+  margin-top: -2vh;
+}
+
+.column-layout {
+  display: flex;
+  flex-direction: column;
+  width: 32.5%;
+  height: 100%;
+  margin-left: 0.5%;
+}
+
+.UF_logo {
+  margin-top: -6%;
+  width: 50%;
+  height: 120%;
+  /* width: 250px;
+  height: 180px; */
+}
+
+.Lab_logo {
+  margin-top: 4%;
+  width: 39%;
+  height: 40%;
+  /* width: 175px;
+  height: 65px; */
+}
+
+.logo-container {
+  flex-direction: row;
+  display: flex;
+}
+
+.header-text {
+  margin-top: -10%;
+  width: 100%;
+  text-align: center;
+}
+
+.text {
+  margin-top: -2%;
+  margin-left: 2%;
+}
+
+.text2 {
+  margin-top: 4%;
+  margin-left: 2%;
+}
+
+.date-time-window {
+  margin-top: 5%;
+  margin-left: 2%;
+  width: 96%;
+}
+
+.table {
+  margin-top: 5%;
+  margin-left: 2%;
+  max-width: 96%;
+}
+
+.text3 {
+  margin-top: 4%;
+  margin-left: 2%;
+}
+
+.line-chart {
+  margin-top: 25%;
+  width: 110%;
+  margin-left: 0%;
+}
+
+.leaflet-container {
+  height: 98.5%;
+  margin-top: 1%;
+  min-width: 45%;
+  margin-left: -3%;
+}
+
+.bar-chart {
+  margin-top: 5%;
+  margin-left: 2%;
+  max-width: 96%;
+}
+
+.switch {
+  margin-left: 5%;
+  margin-top: 5%;
+  margin-bottom: 5%;
+}
+
+.box {
+  margin-top: 25%;
+  margin-left: 10%;
+}
