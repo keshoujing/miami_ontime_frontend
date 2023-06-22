@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, Polyline, LayerGroup, LayersControl, Circle } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css';
 import { get_route, get_stops } from './axios';
 import L from 'leaflet';
 import dataContext from './context'
+import { showLoading } from 'react-global-loading';
+
 
 const create_stop_icon = ((path) => {
   return new L.Icon({
@@ -34,7 +36,7 @@ const Map = () => {
     const [currentStop, setCurrentStop] = useState([]);
     //const [currentIndex, setCurrentIndex] = useState(0);
     //const [currentCoordinates, setCurrentCoordinates] = useState(initialCoordinates[0]);
-    const {rows, displayRoute} = useContext(dataContext);
+    const {rows, displayRoute } = useContext(dataContext);
     const routes = rows.map(row => row[0]);
 
     useEffect(() => {
@@ -47,8 +49,8 @@ const Map = () => {
       const getAllStops = async () => {
         const promises = routes.map(async route => { return get_stops(route); });
         const allStops = await Promise.all(promises);
-        console.log(allStops);
         setCurrentStop(allStops);
+        showLoading(false);
       };
 
       if (rows.length > 0) {
@@ -72,7 +74,6 @@ const Map = () => {
     //   setCurrentCoordinates(initialCoordinates[currentIndex]);
     // }, [currentIndex]);
 
-
      return (
           <MapContainer center={center} zoom={10} scrollWheelZoom={true}>
           <TileLayer
@@ -84,20 +85,31 @@ const Map = () => {
                A pretty CSS3 popup. <br /> Easily customizable.
                </Popup>
           </Marker> */}
-          {
-            displayRoute ?
-            (currentStop.map(routeStop => {
-                return routeStop.map((stop, index) => {
-                  console.log(stop);
-                  return <Marker icon={stop_icon[index]} position={stop}></Marker>
-                });
-              }  
-            ))
-             : 
-            (currentRoute.length > 0 ? (currentRoute.map((route, index) => 
-              (<Polyline pathOptions={colorOptions[index]} positions={route} />)  
-            )) : <></>)
-          }
+          <LayersControl>
+            <LayersControl.Overlay checked={true} name='Stops'>
+              <LayerGroup id="Stops">
+                {
+                  (currentStop.map(routeStop => {
+                    return routeStop.map((stop, index) => {
+                      return <Marker icon={stop_icon[index]} position={stop}></Marker>
+                    });
+                  }  
+                  ))
+                }
+              </LayerGroup>
+            </LayersControl.Overlay>
+
+            <LayersControl.Overlay checked={false} name='Routes'>
+              <LayerGroup id="Routes">
+                {
+                  (currentRoute.length > 0 ? (currentRoute.map((route, index) => 
+                  (<Polyline pathOptions={colorOptions[index]} positions={route} />)  
+                  )) : <></>)
+                }
+              </LayerGroup>
+            </LayersControl.Overlay>
+          </LayersControl>
+          
           </MapContainer>
      );
 }

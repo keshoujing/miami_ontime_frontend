@@ -101,16 +101,18 @@ module.exports = function (proxy, allowedHost) {
     },
     // `proxy` is run between `before` and `after` `webpack-dev-server` hooks
     //TODO: for text only, remove this before deploy.
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3004',
-        ws: true,
-        changeOrigin: true,
-        pathRewrite: {
-          '^/api': '/',
-        },
-      }
-    },
+    proxy
+    // : {
+    //   '/api': {
+    //     target: 'http://localhost:3004',
+    //     ws: true,
+    //     changeOrigin: true,
+    //     pathRewrite: {
+    //       '^/api': '/',
+    //     },
+    //   }
+    // }
+    ,
     onBeforeSetupMiddleware(devServer) {
       // Keep `evalSourceMapMiddleware`
       // middlewares before `redirectServedPath` otherwise will not have any effect

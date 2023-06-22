@@ -12,7 +12,7 @@ import {
   } from 'chart.js';
 import { Line, Bar } from 'react-chartjs-2';
 import dataContext from './context'
-
+import { get_delay_in_hours } from './axios'
 
 ChartJS.register(
     CategoryScale,
@@ -25,23 +25,68 @@ ChartJS.register(
     Legend
   );
 
+const colorOptions = [{ color: '#6699ff' }, 
+                      { color: '#ff6666' }, 
+                      { color: '#fc8403' },
+                      { color: '#ffff66' },
+                      { color: '#f803fc' }];
 
-const data = {
-  labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-  datasets: [
-    {
-      label: 'My First Dataset',
-      data: [65, 59, 80, 81, 56, 55, 40],
-      fill: false,
-      borderColor: 'rgb(75, 192, 192)',
-      tension: 0.1,
-    },
-  ],
-};
+export function LineChart() {
+  const { value, value2, rows } = React.useContext(dataContext);
+  const [all_delay, setAll_delay] = React.useState([]);
 
-export const LineChart = () => {
-  return <Line data={data} />;
-};
+  React.useEffect(() => {
+    const formatDate = (date) => {
+      return date.format('YYYY-MM-DDTHH:mm')
+    };
+    const get_all_delay_in_hours = async (timestamp) => {
+      const promises = rows.map(async (row) => get_delay_in_hours(row[0], timestamp));
+      const res = await Promise.all(promises);
+      console.log(res);
+      setAll_delay(res);
+    };
+    if (rows.length > 0) {
+      const timestamp = {
+        from: formatDate(value), 
+        to: formatDate(value2),
+      };
+      // showLoading(true);
+      get_all_delay_in_hours(timestamp);
+    }
+  },[rows]);
+                         
+  const data = {
+    labels: ['6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18'],
+    datasets: all_delay.map((delay_route, index) => {
+      let valid_timestamp = delay_route.slice(6, 19);
+      return {
+        label: rows[index][0].toString(),
+        data: valid_timestamp,
+        fill: false,
+        borderColor: colorOptions[index].color,
+        tension: 0.1,
+      }
+    })
+  };
+  const options = {
+    scales: {
+      y: {
+        title: {
+          display: true,
+          text: 'Delay Time'
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Hour of Day'
+        }
+      },
+      maintainAspectRatio: false,
+    }     
+  }
+  return <Line data={data} options={options} />;
+}
 
 export function BarChart() {
   const { rows } = React.useContext(dataContext);
@@ -56,9 +101,27 @@ export function BarChart() {
       {
         label: 'delay time',
         data: delay_time,
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-      },
-    ],
+        backgroundColor: [colorOptions[0].color, colorOptions[1].color, colorOptions[2].color, 
+                          colorOptions[3].color, colorOptions[4].color]
+      }
+    ]
   };
-  return <Bar data={data2} />;
+  const options = {
+    scales: {
+      y: {
+        title: {
+          display: true,
+          text: 'Delay Time'
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Route Name'
+        }
+      },
+      maintainAspectRatio: false,
+    }     
+  }
+  return <Bar data={data2} options={options} />;
 }

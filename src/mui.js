@@ -21,19 +21,19 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
-import ImageIcon from './image/blu.jpg';
-import WorkIcon from './image/pur.jpg';
-import BeachAccessIcon from './image/org.jpg';
 import Divider from '@mui/material/Divider';
-import { get_date, get_top_five_delay_route } from './axios'
+import LoadingButton from '@mui/lab/LoadingButton';
+import { GlobalLoading, showLoading } from 'react-global-loading';
+import { get_top_five_delay_route } from './axios'
 import dataContext from './context';
 
 export function ContextProvider({ children }) {
 
-  const [value, setValue] = React.useState(null);
-  const [value2, setValue2] = React.useState(null);
+  const [value, setValue] = React.useState(dayjs().subtract(1, 'M'));
+  const [value2, setValue2] = React.useState(dayjs());
   const [rows, setRows] = React.useState([]);
   const [displayRoute, setDisplayRoute] = React.useState(true)
+  const [loading, setLoading] = React.useState(false);
 
   const updateValue = (newValue) => {
     setValue(newValue);
@@ -51,6 +51,10 @@ export function ContextProvider({ children }) {
     setDisplayRoute(isRoute);
   }
 
+  const updateLoading = (isLoading) => {
+    setLoading(isLoading);
+  }
+
   return (
     <dataContext.Provider value={{ 
       value,  
@@ -61,6 +65,8 @@ export function ContextProvider({ children }) {
       updateRows,
       displayRoute,
       updateRoute,
+      loading,
+      updateLoading,
       }}>
       {children}
     </dataContext.Provider>
@@ -73,17 +79,8 @@ export function ContextProvider({ children }) {
  * param {label} the label of the DateTimePicker
  */
 
-export function DateTimePickerValue({ subtractMonth }) {
+export function DateTimePickerValue() {
   const { value, updateValue, value2, updateValue2 } = React.useContext(dataContext);
-
-  React.useEffect(() => {
-    updateValue(dayjs().subtract(subtractMonth, 'M'));
-    updateValue2(dayjs().subtract(subtractMonth, 'M'));
-  }, []);
-
-  const formatDate = (date) => {
-    return date.format('YYYY-MM-DDTHH:mm')
-  }
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -94,10 +91,6 @@ export function DateTimePickerValue({ subtractMonth }) {
           value={value}
           onChange={(newValue) => {
             updateValue(newValue);
-            get_date({datetime: {
-              From: formatDate(newValue),
-              To: formatDate(value2)
-            }});
           }}
         />
       </DemoContainer>
@@ -108,10 +101,6 @@ export function DateTimePickerValue({ subtractMonth }) {
           value={value2}
           onChange={(newValue) => {
             updateValue2(newValue);
-            get_date({datetime: {
-              From: formatDate(value),
-              To: formatDate(newValue)
-            }});
           }}
         />
       </DemoContainer>
@@ -124,7 +113,7 @@ export function FixedContainer({ children }) {
     <React.Fragment>
       <CssBaseline />
       <Container fixed>
-        <Box sx={{ bgcolor: '#cfe8fc', marginLeft: '-7%', width: '100%', height: '105.4%'}}>
+        <Box sx={{ bgcolor: '#cfe8fc', marginTop: '5%', marginLeft: '-7%', width: '100%', height: '105.4%'}}>
           {children}
         </Box>
       </Container>
@@ -133,24 +122,28 @@ export function FixedContainer({ children }) {
 }
 
 export function BasicTable() {
-  const { value, value2, updateRows, rows } = React.useContext(dataContext);
+  const { value, value2, updateRows, rows, loading } = React.useContext(dataContext);
 
   React.useEffect(() => {
-    async function fetchContent() {
-      const res = await get_top_five_delay_route();
-      console.log(res);
-      updateRows(res);
+    async function fetchContent(timestamp) {
+      await get_top_five_delay_route(timestamp).then((response) => updateRows(response));
     }
-
-    fetchContent();
-  }, [value, value2]);
+    const timestamp = {
+      fromDate: value.format('YYYY-MM-DD'),
+      toDate: value2.format('YYYY-MM-DD'),
+      fromTime: value.format('HH:mm:ss'),
+      toTime: value2.format('HH:mm:ss'),
+    }
+    showLoading(true);
+    fetchContent(timestamp);
+  }, [loading]);
 
   return (
     <TableContainer component={Paper}>
       <Table sx={{ maxWidth: 500 }} size={'small'} padding='normal' aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell align="right">Route ID</TableCell>
+            <TableCell align="left">RouteID</TableCell>
             <TableCell align="right">Average Delayed Time (min)</TableCell>
           </TableRow>
         </TableHead>
@@ -162,7 +155,7 @@ export function BasicTable() {
               sx={{ '&:last-child td, &:last-child th': { border: 0 }}}
             >
               <TableCell align="right">{row[0]}</TableCell>
-              <TableCell align="right">{row[1]}</TableCell>
+              <TableCell align="right">{parseFloat(row[1]).toFixed(2)}</TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -272,4 +265,39 @@ export function InsetDividers() {
       </ListItem>
     </List>
   );
+}
+
+export function BasicButtons() {
+  const { loading, updateLoading } = React.useContext(dataContext);
+
+  const handleClick = () => {
+    updateLoading(!loading);
+  };
+
+  return (
+    <div>
+      <GlobalLoading />
+      <Box sx={{ '& > button': { m: 1 } }}>
+        <LoadingButton
+            size="medium"
+            onClick={handleClick}
+            loading={false}
+            loadingIndicator="Loading…"
+            variant="outlined"
+          >
+            <span>Search</span>
+          </LoadingButton>
+      </Box>
+    </div>
+
+  );
+}
+
+export function AVGDelay() {
+  const { rows } = React.useContext(dataContext);
+  let avgDelay = 0;
+  if (rows.length > 0) { rows.forEach((row) => { avgDelay += row[1] }); }
+  return (
+    <h3 style={{ width: "180px", textAlign: 'center', marginLeft: '60px'}}>Average delay time: { parseFloat(avgDelay / rows.length).toFixed(2) } min</h3>
+  )
 }
