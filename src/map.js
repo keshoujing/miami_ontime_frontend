@@ -5,22 +5,23 @@ import { get_route, get_stops } from './axios';
 import L from 'leaflet';
 import dataContext from './context'
 import { showLoading } from 'react-global-loading';
+import { MapPopUp } from './mui';
 
 
-const create_stop_icon = ((path) => {
+const Create_stop_icon = ((path) => {
   return new L.Icon({
-    iconUrl: require(`./image/${path}`),
+    iconUrl: path,
     popupAnchor:  [-0, -0],
     iconSize: [25,25],     
   })
 });
 
-const stop_icon = [
-  create_stop_icon('blu.jpg'),
-  create_stop_icon('red.jpg'),
-  create_stop_icon('org.jpg'),
-  create_stop_icon('yel.jpg'),
-  create_stop_icon('pur.jpg'),
+const Stop_icon = [
+  Create_stop_icon('./image/blu.jpg'),
+  Create_stop_icon('./image/red.jpg'),
+  Create_stop_icon('./image/org.jpg'),
+  Create_stop_icon('./image/yel.jpg'),
+  Create_stop_icon('./image/pur.jpg'),
 ]
 
 const Map = () => {
@@ -34,8 +35,6 @@ const Map = () => {
       
     const [currentRoute, setCurrentRoute] = useState([]);
     const [currentStop, setCurrentStop] = useState([]);
-    //const [currentIndex, setCurrentIndex] = useState(0);
-    //const [currentCoordinates, setCurrentCoordinates] = useState(initialCoordinates[0]);
     const {rows, displayRoute } = useContext(dataContext);
     const routes = rows.map(row => row[0]);
 
@@ -60,20 +59,6 @@ const Map = () => {
       
     }, [rows]);
 
-    // useEffect(() => {
-    //   const interval = setInterval(() => {
-    //     setCurrentIndex(prevIndex => (prevIndex + 1) % initialCoordinates.length);
-    //   }, 1000); // Adjust the interval as needed
-  
-    //   return () => {
-    //     clearInterval(interval);
-    //   };
-    // }, []);
-  
-    // useEffect(() => {
-    //   setCurrentCoordinates(initialCoordinates[currentIndex]);
-    // }, [currentIndex]);
-
      return (
           <MapContainer center={center} zoom={10} scrollWheelZoom={true}>
           <TileLayer
@@ -89,9 +74,14 @@ const Map = () => {
             <LayersControl.Overlay checked={true} name='Stops'>
               <LayerGroup id="Stops">
                 {
-                  (currentStop.map(routeStop => {
-                    return routeStop.map((stop, index) => {
-                      return <Marker icon={stop_icon[index]} position={stop}></Marker>
+                  (currentStop.map((routeStop, index) => {
+                    return routeStop.map((stop) => {
+                      return <Marker icon={Stop_icon[index]} position={[stop[0], stop[1]]}>
+                        <Popup>
+                          <h3>Station Name: {stop[2]}</h3>
+                          <MapPopUp route={routes[index]} stopName={stop[2]}/>
+                        </Popup>
+                      </Marker>
                     });
                   }  
                   ))

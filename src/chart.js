@@ -37,7 +37,7 @@ export function LineChart() {
 
   React.useEffect(() => {
     const formatDate = (date) => {
-      return date.format('YYYY-MM-DDTHH:mm')
+      return date.format('YYYY-MM-DDTHH:mm:ss')
     };
     const get_all_delay_in_hours = async (timestamp) => {
       const promises = rows.map(async (row) => get_delay_in_hours(row[0], timestamp));
@@ -58,7 +58,7 @@ export function LineChart() {
   const data = {
     labels: ['6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18'],
     datasets: all_delay.map((delay_route, index) => {
-      let valid_timestamp = delay_route.slice(6, 19);
+      let valid_timestamp = delay_route ? delay_route.slice(6, 19) : [];
       return {
         label: rows[index][0].toString(),
         data: valid_timestamp,

@@ -7,8 +7,7 @@ export function get_route( route_short_name ) {
             route_short_name: route_short_name
         }}
     ).then(response => {
-    
-        return response.data[0].geometry;
+        return response.data;
     })
     .catch(error => console.log(error));
 }
@@ -20,13 +19,12 @@ export function get_stops( route_short_name ) {
             route_short_name: route_short_name
         }}
     ).then(response => {
-        
-        return response.data[0].stops;
+        return response.data;
     })
    .catch(error => console.log(error));
 }
 
-export function get_top_five_delay_route( timestamp ) {
+export function get_top_five_delay_route( timestamp, from_route_names ) {
     console.log( 'get_top_five_delay_route' );
     return axios.get('/api/top_route', {
         params: {
@@ -34,11 +32,11 @@ export function get_top_five_delay_route( timestamp ) {
             toDate: timestamp.toDate,
             fromTime: timestamp.fromTime,
             toTime: timestamp.toTime,
+            from_route_names: [...from_route_names].toString(),
         }}
     )
     .then(response => {
-        
-        return response.data[0].list;
+        return response.data;
     });
 }
 
@@ -52,9 +50,31 @@ export function get_delay_in_hours( route_short_name, timestamp ) {
         }}
     ).then(response => {
         if (response.data.length > 0) {
-            return response.data[0].delays;
+            return response.data;
         }
         return [];
     })
   .catch(error => console.log(error));
+}
+
+export function get_datetime_limit() {
+    console.log('get_datetime_limit');
+    return axios.get('/api/datetime_limit')
+    .then(response => {
+        return response.data;
+    }).catch (err => console.log(err));
+}
+
+export function send_issue(data) {
+    return axios.post('/api/send_issue', JSON.stringify(data))
+    .then(response => {
+      return response.data;
+    }).catch(err => console.log(err));
+}
+
+export function get_issue() {
+    return axios.get('api/get_issue')
+    .then(response => {
+        return response.data;
+    }).catch(err => console.log(err));
 }

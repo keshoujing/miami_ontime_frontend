@@ -50,18 +50,18 @@
 }
 
 .text2 {
-  margin-top: 15%;
+  margin-top: 3%;
   margin-left: 2%;
 }
 
 .date-time-window {
-  margin-top: 5%;
+  margin-top: 3%;
   margin-left: 2%;
   width: 96%;
 }
 
 .button {
-  margin-top: 10%;
+  margin-top: 0%;
   width: 30%;
   margin-left: 32%;
 }
@@ -73,12 +73,12 @@
 }
 
 .text3 {
-  margin-top: 2%;
+  margin-top: -5%;
   margin-left: 2%;
 }
 
 .line-chart {
-  margin-top: 2.5%;
+  margin-top: 0.5%;
   width: 100%;
   margin-left: 0%;
   height: 50%;
@@ -115,5 +115,13 @@
   width: 30%;
   height: 100%;
   margin-left: 0.5%;
-  margin-top: 2%;
+  /* margin-top: 2%; */
+}
+
+.selector {
+  margin-top: -5%;
+}
+
+.issue-button {
+  margin-top: -5%;
 }
